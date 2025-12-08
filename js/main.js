@@ -2,23 +2,85 @@
 // カスタムマップスタイル（グレー・道路白・水色）
 // ================================
 const customStyle = [
-  { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#e0e0e0" }] },
-  { featureType: "water", elementType: "geometry", stylers: [{ color: "#a3d9ff" }] },
-  { featureType: "road", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
-  { featureType: "road", elementType: "labels", stylers: [{ visibility: "off" }] },
-  { featureType: "poi", stylers: [{ visibility: "off" }] },
-  { featureType: "transit", stylers: [{ visibility: "off" }] },
-  {
-    featureType: "administrative",
-    elementType: "geometry.stroke",
-    stylers: [{ color: "#bbbbbb" }, { weight: 0.5 }]
-  },
+  // 全てのラベルを非表示
+  { elementType: "labels", stylers: [{ visibility: "off" }] },
+
+  // 行政ラベル完全非表示（地方名、本州/四国/九州名など）
   {
     featureType: "administrative",
     elementType: "labels",
     stylers: [{ visibility: "off" }]
-  }
+  },
+  {
+    featureType: "administrative.country",
+    stylers: [{ visibility: "off" }]
+  },
+  {
+    featureType: "administrative.province",
+    stylers: [{ visibility: "off" }]
+  },
+  {
+    featureType: "administrative.land_parcel",
+    stylers: [{ visibility: "off" }]
+  },
+  {
+    featureType: "administrative.locality",
+    stylers: [{ visibility: "off" }]
+  },
+  {
+    featureType: "administrative.neighborhood",
+    stylers: [{ visibility: "off" }]
+  },
+
+  // 山・自然地名を完全非表示
+  {
+    featureType: "poi",
+    stylers: [{ visibility: "off" }]
+  },
+  {
+    featureType: "poi.park",
+    stylers: [{ visibility: "off" }]
+  },
+  {
+    featureType: "poi.attraction",
+    stylers: [{ visibility: "off" }]
+  },
+  {
+    featureType: "poi.business",
+    stylers: [{ visibility: "off" }]
+  },
+  {
+    featureType: "poi.sports_complex",
+    stylers: [{ visibility: "off" }]
+  },
+  {
+    featureType: "poi.medical",
+    stylers: [{ visibility: "off" }]
+  },
+  {
+    featureType: "poi.place_of_worship",
+    stylers: [{ visibility: "off" }]
+  },
+  {
+    featureType: "poi.school",
+    stylers: [{ visibility: "off" }]
+  },
+  {
+    featureType: "poi.natural_feature",
+    stylers: [{ visibility: "off" }]
+  },
+
+  // 道路
+  { featureType: "road", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
+  { featureType: "road", elementType: "labels", stylers: [{ visibility: "off" }] },
+
+  // 水域
+  { featureType: "water", elementType: "geometry", stylers: [{ color: "#888f94ff" }] },
+
+  // 地形
+  { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#e0e0e0" }] }
 ];
+
 
 // ================================
 // 市区町村 JSON ファイルマップ & 地方ごとの bbox
@@ -399,7 +461,11 @@ function initMap() {
     .then(json => {
       prefLayer.addGeoJson(json);
       applyStyles();
-    });
+
+    // ★ ココを追加！
+    createPrefLabels(json, map);
+  });
+
 
   // 市区町村レイヤー（最初は空・非表示）
   cityLayer = new google.maps.Data({ map: null });
