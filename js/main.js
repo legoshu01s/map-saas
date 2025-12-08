@@ -1,74 +1,23 @@
-// ================================
-// カスタムマップスタイル（グレー・道路白・水色）
-// ================================
 const customStyle = [
-  // 全てのラベルを非表示
   { elementType: "labels", stylers: [{ visibility: "off" }] },
 
-  // 行政ラベル完全非表示（地方名、本州/四国/九州名など）
-  {
-    featureType: "administrative",
-    elementType: "labels",
-    stylers: [{ visibility: "off" }]
-  },
-  {
-    featureType: "administrative.country",
-    stylers: [{ visibility: "off" }]
-  },
-  {
-    featureType: "administrative.province",
-    stylers: [{ visibility: "off" }]
-  },
-  {
-    featureType: "administrative.land_parcel",
-    stylers: [{ visibility: "off" }]
-  },
-  {
-    featureType: "administrative.locality",
-    stylers: [{ visibility: "off" }]
-  },
-  {
-    featureType: "administrative.neighborhood",
-    stylers: [{ visibility: "off" }]
-  },
+  // 行政ラベル非表示
+  { featureType: "administrative", elementType: "labels", stylers: [{ visibility: "off" }] },
+  { featureType: "administrative.country", stylers: [{ visibility: "off" }] },
+  { featureType: "administrative.province", stylers: [{ visibility: "off" }] },
+  { featureType: "administrative.land_parcel", stylers: [{ visibility: "off" }] },
+  { featureType: "administrative.locality", stylers: [{ visibility: "off" }] },
+  { featureType: "administrative.neighborhood", stylers: [{ visibility: "off" }] },
 
-  // 山・自然地名を完全非表示
-  {
-    featureType: "poi",
-    stylers: [{ visibility: "off" }]
-  },
-  {
-    featureType: "poi.park",
-    stylers: [{ visibility: "off" }]
-  },
-  {
-    featureType: "poi.attraction",
-    stylers: [{ visibility: "off" }]
-  },
-  {
-    featureType: "poi.business",
-    stylers: [{ visibility: "off" }]
-  },
-  {
-    featureType: "poi.sports_complex",
-    stylers: [{ visibility: "off" }]
-  },
-  {
-    featureType: "poi.medical",
-    stylers: [{ visibility: "off" }]
-  },
-  {
-    featureType: "poi.place_of_worship",
-    stylers: [{ visibility: "off" }]
-  },
-  {
-    featureType: "poi.school",
-    stylers: [{ visibility: "off" }]
-  },
-  {
-    featureType: "poi.natural_feature",
-    stylers: [{ visibility: "off" }]
-  },
+  // POI はすでに全 OFF なので natural_feature は不要
+  { featureType: "poi", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.park", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.attraction", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.business", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.sports_complex", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.medical", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.place_of_worship", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.school", stylers: [{ visibility: "off" }] },
 
   // 道路
   { featureType: "road", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
@@ -80,6 +29,33 @@ const customStyle = [
   // 地形
   { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#e0e0e0" }] }
 ];
+
+// 鉄道 ON
+const railOn = {
+  featureType: "transit.line",
+  stylers: [{ visibility: "on" }]
+};
+
+// 鉄道 OFF
+const railOff = {
+  featureType: "transit.line",
+  stylers: [{ visibility: "off" }]
+};
+
+// 道路 ON
+const roadOn = {
+  featureType: "road",
+  elementType: "geometry",
+  stylers: [{ visibility: "on" }]
+};
+
+// 道路 OFF
+const roadOff = {
+  featureType: "road",
+  elementType: "geometry",
+  stylers: [{ visibility: "off" }]
+};
+
 
 
 // ================================
@@ -454,17 +430,37 @@ function initMap() {
       applyStyles();
     });
 
-  // 都県レイヤー
-  prefLayer = new google.maps.Data({ map: null });
-  fetch("/data/japan.json")
-    .then(r => r.json())
-    .then(json => {
-      prefLayer.addGeoJson(json);
-      applyStyles();
+// 都県レイヤー
+prefLayer = new google.maps.Data({ map: null });
 
-    // ★ ココを追加！
+fetch("/data/japan.json")
+  .then(r => r.json())
+  .then(json => {
+    const features = prefLayer.addGeoJson(json);
+
+    // ★ 各 feature に都道府県名を付与する（既にあるなら上書きしない）
+    features.forEach(f => {
+      const name =
+        f.getProperty("NAME_1") ||
+        f.getProperty("name") ||
+        f.getProperty("pref") ||
+        null;
+
+      if (name) {
+        f.setProperty("N03_001", name); // ★ 市町村と同じ key を付与
+      }
+    });
+
+    applyStyles();
     createPrefLabels(json, map);
   });
+
+// UI とマップを連動させる
+document.getElementById("toggleRail").addEventListener("change", () => updateMapStyle(map));
+document.getElementById("toggleRoad").addEventListener("change", () => updateMapStyle(map));
+
+// 初期適用
+updateMapStyle(map);
 
 
   // 市区町村レイヤー（最初は空・非表示）
@@ -523,6 +519,17 @@ map.addListener("zoom_changed", () => {
     });
   }
 });
+
+function updateMapStyle(map) {
+  const rail = document.getElementById("toggleRail").checked;
+  const road = document.getElementById("toggleRoad").checked;
+
+  let newStyle = [...customStyle];
+  newStyle.push(rail ? railOn : railOff);
+  newStyle.push(road ? roadOn : roadOff);
+
+  map.setOptions({ styles: newStyle });
+}
 
 
   // 初期表示時に一応呼んでおく（zoom=5 なので実質何もしない）
