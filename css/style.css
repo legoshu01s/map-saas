@@ -1,0 +1,45 @@
+@charset "UTF-8";
+
+/* 共通部分
+------------------------------- */
+    html {
+        font-size: 100%;
+        text-align: center;
+    }
+
+    .left {
+    }
+        /* ヘッダー・フッター
+        ------------------------------- */
+        header,
+        footer {
+            background-color: gray;
+            color: white;
+            text-align: left;
+        }
+
+    .right {
+        overflow: hidden; /* ← ページのスクロールを無効にする */
+        }
+        /* マップ
+        ----------------------------------- */
+        .maps {
+            padding: 0;
+        }
+        #map {
+            margin: 0;
+        }
+
+/* デスクトップ版
+------------------------------- */
+    @media (min-width: 800px) {
+        /* 分割 */
+        .test {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+        #map {
+            height: 100vh; /* 画面いっぱい */
+            width: 100%; 
+        }
+    }

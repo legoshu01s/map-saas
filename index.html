@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <title>test maps</title>
+    <meta name="description" content="maps">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- リセットCSS -->
+    <link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css">
+
+    <!-- オリジナルCSS -->
+    <link rel="stylesheet" href="css/style.css">
+
+</head>
+
+<body>
+    <div class="test">
+        <div class="left">
+            <header>ヘッダーエリア</header>
+            <main>
+                <div class="content">絞り込みエリア</div>
+            </main>
+            <footer>フッターエリア</footer>
+        </div>
+
+        <div class="right">
+            <main>
+                <div class="maps">
+                    <div id="map"></div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <!-- JS -->
+    <script src="js/main.js"></script>
+
+    <!-- Google Maps API -->
+    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyATDTIwSYHGbwmxEty4gsoCG4_Ku5Dc07A&callback=initMap"></script>
+</body>
+</html>
