@@ -20,20 +20,48 @@ const customStyle = [
   }
 ];
 
+let regionLayer;   // 地方レイヤー
+let prefLayer;     // 都県レイヤー
+let cityLayer;     // 市区町村レイヤー
+
 // ================================
-// 選択された領域を保存する（localStorage）
+// 選択状態の保存（localStorage）
 // ================================
 const STORAGE_KEY = "selectedAreas";
 
 // 保存形式：{ region: [], pref: [], city: [] }
 let selectedData = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-
 if (!selectedData.region) selectedData.region = [];
 if (!selectedData.pref) selectedData.pref = [];
 if (!selectedData.city) selectedData.city = [];
 
+// 保存
 function saveSelection() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(selectedData));
+}
+
+// ================================
+// feature から「キー」を取り出す（id が無くても対応）
+// ================================
+function getFeatureKey(feature) {
+  // まず本物の ID を探す
+  const directId = feature.getId();
+  if (directId) return directId;
+
+  // N03_001（都道府県）＋ N03_004（市区町村） の結合でユニークIDを生成
+  const pref = feature.getProperty("N03_001");
+  const city = feature.getProperty("N03_004");
+
+  if (pref && city) {
+    return `${pref}-${city}`;   // 例: "東京都-八王子市"
+  }
+
+  // 他に name や code があれば fallback
+  return (
+    feature.getProperty("id") ||
+    feature.getProperty("name") ||
+    feature.getProperty("code")
+  );
 }
 
 
@@ -41,109 +69,103 @@ function saveSelection() {
 // 各レイヤーのスタイル設定
 // ================================
 function applyStyles() {
-  // 地方（regionLayer）
-  regionLayer.setStyle(feature => {
-    const id = feature.getId();
-    const selected = selectedData.region.includes(id);
-    return {
-      fillColor: selected ? "#ff6666" : "#cccccc",
-      fillOpacity: selected ? 0.9 : 0.6,
-      strokeColor: "#888",
-      strokeWeight: 1
-    };
-  });
+  if (regionLayer) {
+    regionLayer.setStyle(feature => {
+      const key = getFeatureKey(feature);
+      const selected = selectedData.region.includes(key);
+      return {
+        fillColor: selected ? "#ff6666" : "#cccccc",
+        fillOpacity: selected ? 0.9 : 0.6,
+        strokeColor: "#888888",
+        strokeWeight: 1
+      };
+    });
+  }
 
-  // 都県（prefLayer）
-  prefLayer.setStyle(feature => {
-    const id = feature.getId();
-    const selected = selectedData.pref.includes(id);
-    return {
-      fillColor: selected ? "#ff6666" : "#cccccc",
-      fillOpacity: selected ? 0.9 : 0.6,
-      strokeColor: "#888",
-      strokeWeight: 1
-    };
-  });
+  if (prefLayer) {
+    prefLayer.setStyle(feature => {
+      const key = getFeatureKey(feature);
+      const selected = selectedData.pref.includes(key);
+      return {
+        fillColor: selected ? "#ff6666" : "#cccccc",
+        fillOpacity: selected ? 0.9 : 0.6,
+        strokeColor: "#888888",
+        strokeWeight: 1
+      };
+    });
+  }
 
-  // 市区町村（cityLayer）
-  cityLayer.setStyle(feature => {
-    const id = feature.getId();
-    const selected = selectedData.city.includes(id);
-    return {
-      fillColor: selected ? "#ff6666" : "#cccccc",
-      fillOpacity: selected ? 0.9 : 0.6,
-      strokeColor: "#888",
-      strokeWeight: 1
-    };
-  });
+  if (cityLayer) {
+    cityLayer.setStyle(feature => {
+      const key = getFeatureKey(feature);
+      const selected = selectedData.city.includes(key);
+      return {
+        fillColor: selected ? "#ff6666" : "#cccccc",
+        fillOpacity: selected ? 0.9 : 0.6,
+        strokeColor: "#888888",
+        strokeWeight: 1
+      };
+    });
+  }
 }
-
 
 // ================================
 // クリックイベント登録
 // ================================
 function registerClickEvents() {
-  // 地方
-  regionLayer.addListener("click", e => {
-    const id = e.feature.getId();
-    if (!id) return;
+  if (regionLayer) {
+    regionLayer.addListener("click", e => {
+      const key = getFeatureKey(e.feature);
+      if (!key) return;
 
-    const arr = selectedData.region;
+      const arr = selectedData.region;
+      if (arr.includes(key)) {
+        selectedData.region = arr.filter(v => v !== key);
+      } else {
+        arr.push(key);
+      }
+      saveSelection();
+      applyStyles();
+    });
+  }
 
-    if (arr.includes(id)) {
-      // 解除
-      selectedData.region = arr.filter(v => v !== id);
-    } else {
-      // 選択
-      arr.push(id);
-    }
+  if (prefLayer) {
+    prefLayer.addListener("click", e => {
+      const key = getFeatureKey(e.feature);
+      if (!key) return;
 
-    saveSelection();
-    applyStyles();
-  });
+      const arr = selectedData.pref;
+      if (arr.includes(key)) {
+        selectedData.pref = arr.filter(v => v !== key);
+      } else {
+        arr.push(key);
+      }
+      saveSelection();
+      applyStyles();
+    });
+  }
 
-  // 都県
-  prefLayer.addListener("click", e => {
-    const id = e.feature.getId();
-    if (!id) return;
+  if (cityLayer) {
+    cityLayer.addListener("click", e => {
+      const key = getFeatureKey(e.feature);
+      if (!key) return;
 
-    const arr = selectedData.pref;
-
-    if (arr.includes(id)) {
-      selectedData.pref = arr.filter(v => v !== id);
-    } else {
-      arr.push(id);
-    }
-
-    saveSelection();
-    applyStyles();
-  });
-
-  // 市区町村
-  cityLayer.addListener("click", e => {
-    const id = e.feature.getId();
-    if (!id) return;
-
-    const arr = selectedData.city;
-
-    if (arr.includes(id)) {
-      selectedData.city = arr.filter(v => v !== id);
-    } else {
-      arr.push(id);
-    }
-
-    saveSelection();
-    applyStyles();
-  });
+      const arr = selectedData.city;
+      if (arr.includes(key)) {
+        selectedData.city = arr.filter(v => v !== key);
+      } else {
+        arr.push(key);
+      }
+      saveSelection();
+      applyStyles();
+    });
+  }
 }
 
-
-let regionLayer;   // 地方レイヤー
-let prefLayer;     // 都県レイヤー
-let cityLayer;     // 市区町村レイヤー
-
+// ================================
+// 地図初期化
+// ================================
 function initMap() {
-
   const map = new google.maps.Map(document.getElementById("map"), {
     zoom: 5,
     center: { lat: 36.5, lng: 138.0 },
@@ -151,36 +173,37 @@ function initMap() {
     disableDefaultUI: true
   });
 
-  // ================================
-  // ① 地方レイヤー（最初は表示）
-  // ================================
+  // ① 地方レイヤー（最初は表示） japan.json を「地方 or 都道府県」GeoJSON として利用
   regionLayer = new google.maps.Data({ map });
-  fetch("/data/japan.json")           // ← 地方データ
+  fetch("/data/japan.json")
     .then(res => res.json())
-    .then(json => regionLayer.addGeoJson(json));
+    .then(json => {
+      regionLayer.addGeoJson(json);
+      applyStyles();   // 読み込み後にも適用
+    });
 
-
-  // ================================
-  // ② 都県レイヤー（最初は非表示）
-  // ================================
+  // ② 都県レイヤー（最初は非表示） ここでも japan.json を使ってるが、あとで分けてOK
   prefLayer = new google.maps.Data({ map: null });
-  fetch("/data/japan.json")      // ← 関東の都県データ
+  fetch("/data/japan.json")
     .then(res => res.json())
-    .then(json => prefLayer.addGeoJson(json));
+    .then(json => {
+      prefLayer.addGeoJson(json);
+      applyStyles();
+    });
 
-
-  // ================================
-  // ③ 市区町村レイヤー（最初は非表示）
-  // ================================
+  // ③ 市区町村レイヤー（最初は非表示） 関東だけなど
   cityLayer = new google.maps.Data({ map: null });
-  fetch("/data/kantou-p.json")      // ← 関東の市町村データ
+  fetch("/data/kantou-p.json")
     .then(res => res.json())
-    .then(json => cityLayer.addGeoJson(json));
+    .then(json => {
+      cityLayer.addGeoJson(json);
+      applyStyles();
+    });
 
+  // ★ クリックイベント登録
+  registerClickEvents();
 
-  // ================================
   // ★ ズームレベルでレイヤー切替
-  // ================================
   map.addListener("zoom_changed", () => {
     const z = map.getZoom();
 
