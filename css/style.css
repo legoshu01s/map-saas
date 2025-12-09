@@ -6,6 +6,9 @@
         font-size: 100%;
         text-align: center;
     }
+    h1 {
+        color: white;
+    }
 
     .left {
     }
@@ -13,9 +16,29 @@
         ------------------------------- */
         header,
         footer {
-            background-color: gray;
+            background-color: rgb(170, 170, 170);
             color: white;
             text-align: left;
+        }
+        .menus {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            text-align: center;
+            margin-right: 8%;
+            margin-left: 8%;
+        }
+        .menu {
+            display: inline-block;
+            font-size: 1rem;
+            background-color: #d5d2d2;
+            color: black;
+            font-weight: lighter;
+            margin: 1px;
+            padding: 10px;
+            transition: .5s;
+        }
+        a {
+            text-decoration: none;
         }
 
     .right {

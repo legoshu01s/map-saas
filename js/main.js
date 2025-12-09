@@ -190,7 +190,7 @@ function applyStyles() {
       const key = getFeatureKey(f);
       const selected = selectedData.region.includes(key);
       return {
-        fillColor: selected ? "#ff6666" : "#cccccc",
+        fillColor: selected ? "#87d483ff" : "#cccccc",
         fillOpacity: selected ? 0.9 : 0.6,
         strokeColor: "#888",
         strokeWeight: 1
@@ -203,7 +203,7 @@ function applyStyles() {
       const key = getFeatureKey(f);
       const selected = selectedData.pref.includes(key);
       return {
-        fillColor: selected ? "#ff6666" : "#cccccc",
+        fillColor: selected ? "#87d483ff" : "#cccccc",
         fillOpacity: selected ? 0.9 : 0.6,
         strokeColor: "#888",
         strokeWeight: 1
@@ -216,7 +216,7 @@ function applyStyles() {
       const key = getFeatureKey(f);
       const selected = selectedData.city.includes(key);
       return {
-        fillColor: selected ? "#ff6666" : "#cccccc",
+        fillColor: selected ? "#87d483ff" : "#cccccc",
         fillOpacity: selected ? 0.9 : 0.6,
         strokeColor: "#888",
         strokeWeight: 1
