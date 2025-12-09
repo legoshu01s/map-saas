@@ -56,6 +56,47 @@ const roadOff = {
   stylers: [{ visibility: "off" }]
 };
 
+// ================================
+// ★ 都道府県ごとの達成率計算
+// ================================
+function updatePrefProgress() {
+  const box = document.getElementById("progressList");
+  if (!box) return;
+
+  const prefStats = {}; // { "北海道": { total: 0, visited: 0 } }
+
+  // ★ cityLayer にロードされている市区町村から計算
+  Object.keys(cityFeaturesByRegion).forEach(region => {
+    const features = cityFeaturesByRegion[region];
+    features.forEach(f => {
+      const pref = f.getProperty("N03_001");
+      const key = getFeatureKey(f);
+
+      if (!pref) return;
+
+      if (!prefStats[pref]) {
+        prefStats[pref] = { total: 0, visited: 0 };
+      }
+
+      prefStats[pref].total++;
+
+      if (selectedData.city.includes(key)) {
+        prefStats[pref].visited++;
+      }
+    });
+  });
+
+  // ★ 表示更新
+  box.innerHTML = "";
+  Object.keys(prefStats).forEach(pref => {
+    const s = prefStats[pref];
+    const percent = ((s.visited / s.total) * 100).toFixed(1);
+
+    const div = document.createElement("div");
+    div.textContent = `${pref}：${percent}% 達成`;
+    box.appendChild(div);
+  });
+}
 
 
 // ================================
@@ -214,18 +255,24 @@ function registerClickEvents() {
     });
   }
 
-  if (cityLayer) {
-    cityLayer.addListener("click", e => {
-      const key = getFeatureKey(e.feature);
-      if (!key) return;
-      const arr = selectedData.city;
-      selectedData.city = arr.includes(key)
-        ? arr.filter(v => v !== key)
-        : [...arr, key];
-      saveSelection();
-      applyStyles();
-    });
-  }
+if (cityLayer) {
+  cityLayer.addListener("click", e => {
+    const key = getFeatureKey(e.feature);
+    if (!key) return;
+
+    const arr = selectedData.city;
+    selectedData.city = arr.includes(key)
+      ? arr.filter(v => v !== key)
+      : [...arr, key];
+
+    saveSelection();
+    applyStyles();
+
+    // ★ 追加：進捗更新
+    updatePrefProgress();
+  });
+}
+
 }
 
 // ================================
@@ -365,11 +412,15 @@ function updateVisibleMunicipalities(map) {
       // 見えている → ロード
       loadRegionCities(region, map);
     } else {
-      // 見えていない → アンロードして軽量化
+      // 見えていない → アンロード
       unloadRegionCities(region);
     }
   });
+
+  // ★ 市区町村が更新されたあと 1回だけ進捗を更新
+  updatePrefProgress();
 }
+
 
 // ================================
 // ★ ラベル生成（地方ごと）
