@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <title>Japan Tracker</title>
+    <meta name="description" content="日本全国の市区町村訪問記録アプリ">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- リセットCSS -->
+    <link rel="stylesheet" href="https://unpkg.com/ress/dist/ress.min.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- オリジナルCSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- フルスクリーン地図 -->
+    <div id="map"></div>
+
+    <!-- 左上: コントロールパネル -->
+    <div class="control-panel" id="controlPanel">
+        <div class="panel-header">
+            <h1 class="logo">Japan Tracker</h1>
+            <button class="panel-toggle" id="panelToggle" aria-label="パネルを折りたたむ">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </button>
+        </div>
+
+        <div class="panel-content" id="panelContent">
+            <div class="settings-section">
+                <h3 class="section-title">表示設定</h3>
+
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggleRail" checked>
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-label">鉄道路線</span>
+                </label>
+
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggleRoad" checked>
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-label">道路</span>
+                </label>
+            </div>
+
+            <div class="info-section">
+                <p class="hint-text">地図をクリックして訪問済みの地域をマーク</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 右下: 統計ダッシュボード -->
+    <div class="stats-dashboard" id="statsDashboard">
+        <div class="dashboard-header">
+            <h2 class="dashboard-title">進捗状況</h2>
+            <button class="dashboard-toggle" id="dashboardToggle" aria-label="ダッシュボードを折りたたむ">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </button>
+        </div>
+
+        <div class="dashboard-content" id="dashboardContent">
+            <!-- 全体進捗 -->
+            <div class="total-progress">
+                <div class="progress-number" id="totalPercent">0</div>
+                <div class="progress-label">%達成</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="totalProgressBar"></div>
+                </div>
+                <div class="progress-detail" id="totalDetail">0 / 0 市区町村</div>
+            </div>
+
+            <!-- 地方別進捗 -->
+            <div class="region-progress" id="regionProgress">
+                <!-- JavaScriptで動的生成 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- JS -->
+    <script src="js/main.js"></script>
+
+    <!-- Google Maps API -->
+    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyATDTIwSYHGbwmxEty4gsoCG4_Ku5Dc07A&callback=initMap"></script>
+</body>
+</html>
