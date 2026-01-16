@@ -196,18 +196,28 @@ function initMap() {
   });
 
   // データ読み込み
-  fetch('./data/japan-merged.json')
+  const dataUrl = './data/japan-merged.json';
+  console.log('データ読み込み開始:', dataUrl);
+
+  fetch(dataUrl)
     .then(r => {
+      console.log('fetch応答:', r.status, r.statusText);
       if (!r.ok) throw new Error('データ読み込み失敗: ' + r.status);
       return r.json();
     })
     .then(data => {
       console.log('読み込み完了:', data.features.length, '市区町村');
+      if (!data.features || data.features.length === 0) {
+        console.error('GeoJSONにfeaturesがありません');
+        return;
+      }
       allFeatures = dataLayer.addGeoJson(data);
+      console.log('地図に追加完了:', allFeatures.length, 'フィーチャー');
       updateStyle();
       updateDashboard();
     })
     .catch(err => {
-      console.error('エラー:', err);
+      console.error('データ読み込みエラー:', err);
+      console.error('ヒント: file://ではなくhttp://localhost:8080でアクセスしてください');
     });
 }
