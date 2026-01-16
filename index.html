@@ -22,6 +22,9 @@
     <!-- フルスクリーン地図 -->
     <div id="map"></div>
 
+    <!-- ツールチップ -->
+    <div class="tooltip" id="tooltip"></div>
+
     <!-- 左上: コントロールパネル -->
     <div class="control-panel" id="controlPanel">
         <div class="panel-header">
@@ -34,6 +37,24 @@
         </div>
 
         <div class="panel-content" id="panelContent">
+            <!-- 検索 -->
+            <div class="search-section">
+                <div class="search-container">
+                    <input type="text" id="searchInput" class="search-input" placeholder="市区町村を検索...">
+                    <button class="search-clear" id="searchClear" aria-label="クリア">×</button>
+                </div>
+                <ul class="search-results" id="searchResults"></ul>
+            </div>
+
+            <!-- Undoボタン -->
+            <button class="undo-button" id="undoButton" disabled>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 10h10a5 5 0 0 1 5 5v2"></path>
+                    <polyline points="3 10 7 6 3 10 7 14"></polyline>
+                </svg>
+                <span>元に戻す</span>
+            </button>
+
             <div class="settings-section">
                 <h3 class="section-title">表示設定</h3>
 
@@ -47,6 +68,12 @@
                     <input type="checkbox" id="toggleRoad" checked>
                     <span class="toggle-slider"></span>
                     <span class="toggle-label">道路</span>
+                </label>
+
+                <label class="toggle-switch">
+                    <input type="checkbox" id="toggleHeatmap">
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-label">ヒートマップ</span>
                 </label>
             </div>
 
@@ -78,9 +105,24 @@
                 <div class="progress-detail" id="totalDetail">0 / 0 市区町村</div>
             </div>
 
+            <!-- タブ切り替え -->
+            <div class="stats-tabs">
+                <button class="stats-tab active" data-tab="region">地方別</button>
+                <button class="stats-tab" data-tab="pref">都道府県別</button>
+            </div>
+
             <!-- 地方別進捗 -->
-            <div class="region-progress" id="regionProgress">
-                <!-- JavaScriptで動的生成 -->
+            <div class="tab-content active" id="regionTab">
+                <div class="region-progress" id="regionProgress">
+                    <!-- JavaScriptで動的生成 -->
+                </div>
+            </div>
+
+            <!-- 都道府県別進捗 -->
+            <div class="tab-content" id="prefTab">
+                <div class="pref-progress" id="prefProgress">
+                    <!-- JavaScriptで動的生成 -->
+                </div>
             </div>
         </div>
     </div>

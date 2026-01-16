@@ -462,3 +462,335 @@ html, body {
 .region-item:hover .region-bar {
     background: linear-gradient(90deg, var(--accent) 0%, #22d3ee 100%);
 }
+
+/* ================================
+   Tooltip
+================================ */
+.tooltip {
+    position: fixed;
+    z-index: 200;
+    padding: 8px 12px;
+    background: var(--bg-panel-solid);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(5px);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    box-shadow: 0 4px 12px var(--shadow);
+    max-width: 200px;
+}
+
+.tooltip.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.tooltip-name {
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.tooltip-pref {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.tooltip-status {
+    font-size: 0.7rem;
+    margin-top: 4px;
+    padding-top: 4px;
+    border-top: 1px solid var(--border);
+    color: var(--accent);
+}
+
+/* ================================
+   Search
+================================ */
+.search-section {
+    margin-bottom: 16px;
+}
+
+.search-container {
+    position: relative;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 36px 10px 12px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.search-input:focus {
+    border-color: var(--accent);
+}
+
+.search-input::placeholder {
+    color: var(--text-muted);
+}
+
+.search-clear {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1.2rem;
+    line-height: 1;
+    opacity: 0;
+    transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+.search-input:not(:placeholder-shown) + .search-clear {
+    opacity: 1;
+}
+
+.search-clear:hover {
+    color: var(--text-primary);
+}
+
+.search-results {
+    list-style: none;
+    margin: 8px 0 0 0;
+    padding: 0;
+    max-height: 200px;
+    overflow-y: auto;
+    background: var(--bg-primary);
+    border-radius: 8px;
+    display: none;
+}
+
+.search-results.active {
+    display: block;
+}
+
+.search-results:empty {
+    display: none;
+}
+
+.search-result-item {
+    padding: 10px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s ease;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.search-result-item:hover {
+    background: var(--border);
+}
+
+.search-result-name {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+}
+
+.search-result-pref {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.search-result-item.visited .search-result-name::after {
+    content: ' ✓';
+    color: var(--accent);
+}
+
+/* ================================
+   Undo Button
+================================ */
+.undo-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 16px;
+    background: var(--border);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.undo-button:hover:not(:disabled) {
+    background: var(--border-light);
+    color: var(--text-primary);
+}
+
+.undo-button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* ================================
+   Stats Tabs
+================================ */
+.stats-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    background: var(--border);
+    padding: 4px;
+    border-radius: 8px;
+}
+
+.stats-tab {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.stats-tab:hover {
+    color: var(--text-secondary);
+}
+
+.stats-tab.active {
+    background: var(--bg-panel-solid);
+    color: var(--text-primary);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* ================================
+   Prefecture Progress
+================================ */
+.pref-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.pref-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+}
+
+.pref-name {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    min-width: 70px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.pref-badge {
+    font-size: 0.7rem;
+}
+
+.pref-bar-container {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.pref-bar {
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+    border-radius: 3px;
+    transition: width 0.5s ease;
+}
+
+.pref-bar.complete {
+    background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
+}
+
+.pref-percent {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    min-width: 36px;
+    text-align: right;
+}
+
+.pref-item:hover .pref-name {
+    color: var(--text-primary);
+}
+
+.pref-item:hover .pref-bar {
+    background: linear-gradient(90deg, var(--accent) 0%, #22d3ee 100%);
+}
+
+.pref-item:hover .pref-bar.complete {
+    background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
+}
+
+/* ================================
+   Completion Badge Animation
+================================ */
+@keyframes badgePop {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+
+.pref-badge.new {
+    animation: badgePop 0.4s ease;
+}
+
+/* ================================
+   Heatmap Colors
+================================ */
+.heatmap-legend {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+}
+
+.heatmap-legend-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.heatmap-legend-colors {
+    display: flex;
+    gap: 2px;
+}
+
+.heatmap-legend-color {
+    width: 16px;
+    height: 8px;
+    border-radius: 2px;
+}
