@@ -122,6 +122,52 @@
         </div>
     </div>
 
+    <!-- 使い方ポップアップ -->
+    <div class="welcome-overlay" id="welcomeOverlay">
+        <div class="welcome-modal">
+            <div class="welcome-header">
+                <h2 class="welcome-title">Japan Tracker へようこそ</h2>
+            </div>
+            <div class="welcome-content">
+                <div class="welcome-step">
+                    <div class="step-icon">🗺️</div>
+                    <div class="step-text">
+                        <strong>地図をクリック</strong>
+                        <p>訪問した市区町村をクリックして記録</p>
+                    </div>
+                </div>
+                <div class="welcome-step">
+                    <div class="step-icon">🔍</div>
+                    <div class="step-text">
+                        <strong>検索機能</strong>
+                        <p>市区町村名で検索してジャンプ</p>
+                    </div>
+                </div>
+                <div class="welcome-step">
+                    <div class="step-icon">📊</div>
+                    <div class="step-text">
+                        <strong>進捗確認</strong>
+                        <p>右下のダッシュボードで達成率をチェック</p>
+                    </div>
+                </div>
+                <div class="welcome-step">
+                    <div class="step-icon">💾</div>
+                    <div class="step-text">
+                        <strong>自動保存</strong>
+                        <p>データはブラウザに自動保存されます</p>
+                    </div>
+                </div>
+            </div>
+            <div class="welcome-footer">
+                <label class="welcome-checkbox">
+                    <input type="checkbox" id="dontShowAgain">
+                    <span>次回から表示しない</span>
+                </label>
+                <button class="welcome-button" id="welcomeClose">はじめる</button>
+            </div>
+        </div>
+    </div>
+
     <!-- JS -->
     <script src="js/main.js"></script>
 

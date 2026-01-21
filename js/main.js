@@ -44,6 +44,7 @@ const PREFECTURES = [
 
 // 選択状態の保存
 const STORAGE_KEY = 'japanTrackerSelected';
+const WELCOME_KEY = 'japanTrackerWelcomeSeen';
 let selected = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'));
 
 // Undo履歴
@@ -417,6 +418,39 @@ function initUndo() {
   updateUndoButton();
 }
 
+// ウェルカムポップアップ
+function initWelcome() {
+  const overlay = document.getElementById('welcomeOverlay');
+  const closeBtn = document.getElementById('welcomeClose');
+  const dontShowCheckbox = document.getElementById('dontShowAgain');
+
+  if (!overlay) return;
+
+  // 既に「次回から表示しない」を選択済みなら非表示
+  if (localStorage.getItem(WELCOME_KEY) === 'true') {
+    overlay.classList.add('hidden');
+    return;
+  }
+
+  // 閉じるボタン
+  closeBtn?.addEventListener('click', function() {
+    if (dontShowCheckbox?.checked) {
+      localStorage.setItem(WELCOME_KEY, 'true');
+    }
+    overlay.classList.add('hidden');
+  });
+
+  // オーバーレイクリックで閉じる（モーダル外）
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) {
+      if (dontShowCheckbox?.checked) {
+        localStorage.setItem(WELCOME_KEY, 'true');
+      }
+      overlay.classList.add('hidden');
+    }
+  });
+}
+
 // 地図初期化
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
@@ -431,6 +465,7 @@ function initMap() {
   initTabs();
   initDisplayToggles();
   initUndo();
+  initWelcome();
 
   // Data Layer
   dataLayer = new google.maps.Data({ map: map });
