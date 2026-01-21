@@ -1,0 +1,9 @@
+{
+  "name": "japan-tracker",
+  "version": "1.0.0",
+  "description": "日本全国の市区町村訪問記録アプリ",
+  "scripts": {
+    "start": "npx http-server -p 8080 -o",
+    "serve": "python3 -m http.server 8080"
+  }
+}

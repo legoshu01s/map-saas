@@ -42,16 +42,6 @@ const PREFECTURES = [
   '沖縄県'
 ];
 
-// ヒートマップ色（訪問率に応じた色）
-const HEATMAP_COLORS = [
-  { threshold: 0, color: '#1e293b' },    // 未訪問
-  { threshold: 0.01, color: '#7c3aed' }, // 少し訪問
-  { threshold: 25, color: '#8b5cf6' },
-  { threshold: 50, color: '#a78bfa' },
-  { threshold: 75, color: '#c4b5fd' },
-  { threshold: 100, color: '#fbbf24' }   // 制覇
-];
-
 // 選択状態の保存
 const STORAGE_KEY = 'japanTrackerSelected';
 let selected = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'));
@@ -64,7 +54,6 @@ const MAX_UNDO = 50;
 let allFeatures = [];
 let dataLayer = null;
 let map = null;
-let heatmapMode = false;
 
 // 制覇済み都道府県の記録
 let completedPrefs = new Set();
@@ -111,51 +100,16 @@ function performUndo() {
 function updateStyle() {
   if (!dataLayer) return;
 
-  // 都道府県別の訪問率を計算（ヒートマップ用）
-  const prefStats = {};
-  allFeatures.forEach(f => {
-    const pref = f.getProperty('pref');
-    if (!prefStats[pref]) {
-      prefStats[pref] = { visited: 0, total: 0 };
-    }
-    prefStats[pref].total++;
-    if (selected.has(f.getProperty('id'))) {
-      prefStats[pref].visited++;
-    }
-  });
-
   dataLayer.setStyle(function(feature) {
     const id = feature.getProperty('id');
-    const pref = feature.getProperty('pref');
     const isSelected = selected.has(id);
 
-    if (heatmapMode) {
-      // ヒートマップモード: 都道府県の訪問率で色を決定
-      const stats = prefStats[pref] || { visited: 0, total: 1 };
-      const percent = (stats.visited / stats.total) * 100;
-
-      let fillColor = HEATMAP_COLORS[0].color;
-      for (const hc of HEATMAP_COLORS) {
-        if (percent >= hc.threshold) {
-          fillColor = hc.color;
-        }
-      }
-
-      return {
-        fillColor: fillColor,
-        fillOpacity: 0.8,
-        strokeColor: '#64748b',
-        strokeWeight: 0.5
-      };
-    } else {
-      // 通常モード
-      return {
-        fillColor: isSelected ? '#4ade80' : '#334155',
-        fillOpacity: isSelected ? 0.8 : 0.6,
-        strokeColor: '#64748b',
-        strokeWeight: 0.5
-      };
-    }
+    return {
+      fillColor: isSelected ? '#4ade80' : '#334155',
+      fillOpacity: isSelected ? 0.8 : 0.6,
+      strokeColor: '#64748b',
+      strokeWeight: 0.5
+    };
   });
 }
 
@@ -434,7 +388,6 @@ function initTabs() {
 function initDisplayToggles() {
   const toggleRail = document.getElementById('toggleRail');
   const toggleRoad = document.getElementById('toggleRoad');
-  const toggleHeatmap = document.getElementById('toggleHeatmap');
 
   function updateMapStyle() {
     const styles = [...mapStyle];
@@ -451,14 +404,6 @@ function initDisplayToggles() {
 
   toggleRail?.addEventListener('change', updateMapStyle);
   toggleRoad?.addEventListener('change', updateMapStyle);
-
-  // ヒートマップ切り替え
-  if (toggleHeatmap) {
-    toggleHeatmap.addEventListener('change', function() {
-      heatmapMode = this.checked;
-      updateStyle();
-    });
-  }
 
   updateMapStyle();
 }
@@ -511,6 +456,49 @@ function initMap() {
   const dataUrl = './data/japan-merged.json';
   console.log('データ読み込み開始:', dataUrl);
 
+  // エラーメッセージ表示用関数
+  function showError(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.style.cssText = `
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(220, 38, 38, 0.95);
+      color: white;
+      padding: 24px 32px;
+      border-radius: 12px;
+      z-index: 1000;
+      max-width: 400px;
+      text-align: center;
+      font-size: 14px;
+      line-height: 1.6;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+    `;
+    errorDiv.innerHTML = message;
+    document.body.appendChild(errorDiv);
+  }
+
+  // file://プロトコルのチェック
+  if (window.location.protocol === 'file:') {
+    showError(`
+      <strong>ローカルサーバーが必要です</strong><br><br>
+      ブラウザのセキュリティ制限により、<br>
+      直接HTMLファイルを開くとデータを読み込めません。<br><br>
+      以下のコマンドでサーバーを起動してください：<br>
+      <code style="background:#1e1e1e;padding:8px 12px;border-radius:6px;display:block;margin-top:12px;">
+        cd map-saas<br>
+        npm start
+      </code>
+      <br>または<br>
+      <code style="background:#1e1e1e;padding:8px 12px;border-radius:6px;display:block;margin-top:12px;">
+        python3 -m http.server 8080
+      </code>
+    `);
+    console.error('file://プロトコルでは動作しません。ローカルサーバーを起動してください。');
+    return;
+  }
+
   fetch(dataUrl)
     .then(r => {
       console.log('fetch応答:', r.status, r.statusText);
@@ -521,6 +509,7 @@ function initMap() {
       console.log('読み込み完了:', data.features.length, '市区町村');
       if (!data.features || data.features.length === 0) {
         console.error('GeoJSONにfeaturesがありません');
+        showError('GeoJSONデータにfeaturesがありません');
         return;
       }
       allFeatures = dataLayer.addGeoJson(data);
@@ -535,6 +524,10 @@ function initMap() {
     })
     .catch(err => {
       console.error('データ読み込みエラー:', err);
-      console.error('ヒント: file://ではなくhttp://localhost:8080でアクセスしてください');
+      showError(`
+        <strong>データ読み込みエラー</strong><br><br>
+        ${err.message}<br><br>
+        data/japan-merged.json が存在するか確認してください。
+      `);
     });
 }
